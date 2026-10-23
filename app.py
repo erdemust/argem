@@ -2,255 +2,238 @@ import random
 import streamlit as st
 
 # ==========================================
-# PAGE CONFIGURATION & THEME
+# SAYFA YAPILANDIRMASI VE TEMA
 # ==========================================
 st.set_page_config(
-    page_title="Hogwarts: The Interactive Adventure",
-    page_icon="⚡",
+    page_title="Latince Botanik Terminoloji Macerası",
+    page_icon="🌿",
     layout="centered",
 )
 
 # ==========================================
-# SESSION STATE INITIALIZATION
+# SESSION STATE (OTURUM DURUMU) BAŞLANGICI
 # ==========================================
 if "game_stage" not in st.session_state:
-  st.session_state.game_stage = "sorting"  # sorting, hub, potions, forest, library
-  st.session_state.player_name = ""
-  st.session_state.house = ""
-  st.session_state.wand = ""
-  st.session_state.house_points = 50
+  st.session_state.game_stage = (
+      "setup"  # setup, hub, etymology, diagnosis, expedition
+  )
+  st.session_state.botanist_name = ""
+  st.session_state.specialization = ""
+  st.session_state.knowledge_points = 50
   st.session_state.inventory = []
 
 # ==========================================
-# STAGE 1: THE SORTING CEREMONY & CHARACTER SETUP
+# AŞAMA 1: BÖLÜM VE UZMANLIK SEÇİMİ (KAYIT)
 # ==========================================
-if st.session_state.game_stage == "sorting":
-  st.title("🏰 Welcome to Hogwarts!")
+if st.session_state.game_stage == "setup":
+  st.title("🌱 Botanik Bahçesine Hoş Geldiniz!")
   st.markdown(
-      "### ⚡ 🚂 Yer a Wizard, and the Great Hall awaits your arrival!"
+      "### 🔬 Latince Botanik Terimleri ve Taksonomi Dünyasına Adım Atın!"
   )
   st.write(
-      "The ancient stone walls echo with whispers as students chatter. The"
-      " Sorting Hat sits upon the stool, waiting for you..."
+      "Kraliyet Botanik Enstitüsü'ne hoş geldiniz. Bitkilerin bilimsel"
+      " adlarını çözmek ve bir 'Usta Botanist' olmak için önce kaydınızı"
+      " yapmalıyız."
   )
 
-  with st.form("character_form"):
+  with st.form("botanist_form"):
     name_input = st.text_input(
-        "What is your wizarding name?", placeholder="e.g., Harry Potter"
+        "Botanist Adınız:", placeholder="Örn: Linnaeus"
     )
 
-    st.markdown("### Answer the Sorting Hat's Question:")
-    question = st.radio(
-        "What trait do you value most?",
+    st.markdown("### Uzmanlık Alanınızı Seçin:")
+    specialization_choice = st.radio(
+        "Hangi alanda uzmanlaşmak istiyorsunuz?",
         [
-            "🦁 Bravery & Daring (Gryffindor)",
-            "🦅 Wit & Learning (Ravenclaw)",
-            "🦡 Loyalty & Patience (Hufflepuff)",
-            "🐍 Ambition & Cunning (Slytherin)",
+            "🌿 Taksatonomi & Bitki Adlandırma (Nomenclature)",
+            "🌺 Morfoloji & Yapısal Özellikler (Morphology)",
+            "💊 Etnobotanik & Tıbbi Bitkiler (Medicinalis)",
+            "🌳 Ekoloji & Habitat (Ecology)",
         ],
     )
 
-    wand_choice = st.selectbox(
-        "Choose your wand core:",
-        [
-            "Phoenix Feather (Powerful & Independent)",
-            "Dragon Heartstring (Fiery & Strong)",
-            "Unicorn Hair (Consistent & Faithful)",
-        ],
-    )
-
-    submit_button = st.form_submit_button("Put on the Sorting Hat!")
+    submit_button = st.form_submit_button("Laboratuvara Giriş Yap!")
 
     if submit_button:
       if name_input.strip() == "":
-        st.warning("Please enter your name to begin your journey!")
+        st.warning("Lütfen başlamak için adınızı girin!")
       else:
-        st.session_state.player_name = name_input
-        st.session_state.wand = wand_choice
+        st.session_state.botanist_name = name_input
 
-        # Assign house based on choice
-        if "Gryffindor" in question:
-          st.session_state.house = "Gryffindor"
-          house_emoji = "🦁"
-        elif "Ravenclaw" in question:
-          st.session_state.house = "Ravenclaw"
-          house_emoji = "🦅"
-        elif "Hufflepuff" in question:
-          st.session_state.house = "Hufflepuff"
-          house_emoji = "🦡"
+        # Uzmanlığa göre etiket atama
+        if "Taksatonomi" in specialization_choice:
+          st.session_state.specialization = "Taksonom"
+        elif "Morfoloji" in specialization_choice:
+          st.session_state.specialization = "Morfolog"
+        elif "Etnobotanik" in specialization_choice:
+          st.session_state.specialization = "Etnobotanist"
         else:
-          st.session_state.house = "Slytherin"
-          house_emoji = "🐍"
+          st.session_state.specialization = "Ekolog"
 
         st.success(
-            f"The Sorting Hat shouts: **{st.session_state.house.upper()}!**"
-            f" {house_emoji}"
+            f"Tebrikler **{st.session_state.botanist_name}**! Artık bir"
+            f" **{st.session_state.specialization}** adayısınız."
         )
         st.balloons()
         st.session_state.game_stage = "hub"
         st.rerun()
 
 # ==========================================
-# STAGE 2: HOGWARTS COMMON ROOM & HUB
+# AŞAMA 2: SERA MERKEZİ VE KONTROL PANELİ (HUB)
 # ==========================================
 elif st.session_state.game_stage == "hub":
-  st.title(f"✨ Welcome, {st.session_state.player_name}!")
+  st.title(f"🪴 Ana Sera Merkezi, Dr. {st.session_state.botanist_name}")
 
-  # Sidebar Stats Panel
-  st.sidebar.header("🧙‍♂️ Wizard Profile")
-  st.sidebar.write(f"**Name:** {st.session_state.player_name}")
-  st.sidebar.write(f"**House:** {st.session_state.house}")
-  st.sidebar.write(f"**Wand:** {st.session_state.wand}")
+  # Kenar Çubuğu (Sidebar) İstatistikleri
+  st.sidebar.header("📋 Botanist Kartı")
+  st.sidebar.write(f"**İsim:** {st.session_state.botanist_name}")
+  st.sidebar.write(f"**Alan:** {st.session_state.specialization}")
   st.sidebar.metric(
-      label="🏆 House Points", value=st.session_state.house_points
+      label="🧠 Bilgi Puanı", value=st.session_state.knowledge_points
   )
   st.sidebar.write(
-      f"**Inventory:** {', '.join(st.session_state.inventory) if st.session_state.inventory else 'Empty'}"
+      f"**Toplanan Örnekler:** {', '.join(st.session_state.inventory) if st.session_state.inventory else 'Henüz yok'}"
   )
 
-  if st.sidebar.button("Restart Game 🔄"):
+  if st.sidebar.button("Oyunu Sıfırla 🔄"):
     st.session_state.clear()
     st.rerun()
 
-  st.markdown("### Choose Where to Go Today:")
+  st.markdown("### Bugün Hangi Bölümü Araştırmak İstersiniz?")
 
   col1, col2, col3 = st.columns(3)
 
   with col1:
-    if st.button("🧪 Potions Class"):
-      st.session_state.game_stage = "potions"
+    if st.button("🧪 Etimoloji Lab"):
+      st.session_state.game_stage = "etymology"
       st.rerun()
 
   with col2:
-    if st.button("🌲 Forbidden Forest"):
-      st.session_state.game_stage = "forest"
+    if st.button("🔍 Örnek Teşhisi"):
+      st.session_state.game_stage = "diagnosis"
       st.rerun()
 
   with col3:
-    if st.button("📚 Library Archives"):
-      st.session_state.game_stage = "library"
+    if st.button("🌳 Morfoloji Çölü"):
+      st.session_state.game_stage = "expedition"
       st.rerun()
 
-  # Game over condition check
-  if st.session_state.house_points <= 0:
+  # Oyun bitti mi kontrolü
+  if st.session_state.knowledge_points <= 0:
     st.error(
-        "Oh no! Your House Points reached 0. Headmaster Dumbledore is very"
-        " disappointed."
+        "Dikkat! Bilgi puanınız tükendi. Enstitü başkanı laboratuvarı"
+        " kapatmanızı istiyor."
     )
-    if st.button("Try Again 🔄"):
-      st.session_state.house_points = 50
+    if st.button("Yeniden Dene 🔄"):
+      st.session_state.knowledge_points = 50
       st.rerun()
 
 # ==========================================
-# STAGE 3A: POTIONS CLASS MINI-GAME
+# AŞAMA 3A: ETİMOLOJİ LAB (KÖK VE ANLAM TESTİ)
 # ==========================================
-elif st.session_state.game_stage == "potions":
-  st.header("🧪 Professor Snape's Potions Classroom")
+elif st.session_state.game_stage == "etymology":
+  st.header("🧪 Latince Kökler ve Anlamlar Laboratuvarı")
   st.write(
-      "Snape glares at you across the dungeon. 'Today, we brew a Cure for"
-      " Boils. Select your ingredients carefully...'"
+      "Prof. Smith sana latince bir terim kökü uzatıyor: *'officinalis'*."
+      " Bu terim botanik adlarda ne anlama gelir?"
   )
 
-  ingredient = st.selectbox(
-      "Choose the main ingredient to add:",
+  meaning = st.selectbox(
+      "Doğru anlamı seçin:",
       [
-          "Select an ingredient...",
-          "Horned Slugs",
-          "Powdered Dragon Scale",
-          "Bicorn Horn",
+          "Seçiminizi yapın...",
+          "Tıbbi / Eczacılıkta kullanılan (Medicinal)",
+          "Kırmızı renkli yapraklara sahip",
+          "Zehirli ve tehlikeli bitki",
       ],
   )
 
-  if st.button("Brew Potion"):
-    if ingredient == "Horned Slugs":
+  if st.button("Cevabı Kontrol Et"):
+    if "Tıbbi / Eczacılıkta" in meaning:
       st.success(
-          "🎉 Perfect! Snape nods grudgingly. Your potion turns bright pink."
-          " +25 House Points!"
+          "🎉 Harika! Doğru bildin. *Officinalis*, eczane/tıbbi geçmişi"
+          " simgeler. +25 Bilgi Puanı!"
       )
-      st.session_state.house_points += 25
-      st.session_state.inventory.append("Cure for Boils Potion")
-    elif ingredient == "Select an ingredient...":
-      st.warning("You must pick an ingredient!")
+      st.session_state.knowledge_points += 25
+      st.session_state.inventory.append("Officinalis Örneği")
+    elif "Seçiminizi" in meaning:
+      st.warning("Lütfen bir seçenek seçin!")
     else:
-      st.error(
-          "💥 BOOM! The cauldron explodes with green smoke! Snape takes"
-          " 20 House Points."
-      )
-      st.session_state.house_points -= 20
+      st.error("❌ Yanlış! Bu kök tıbbi bitkileri ifade eder. -15 Puan.")
+      st.session_state.knowledge_points -= 15
 
-  if st.button("🔙 Back to Common Room"):
+  if st.button("🔙 Ana Seraya Dön"):
     st.session_state.game_stage = "hub"
     st.rerun()
 
 # ==========================================
-# STAGE 3B: FORBIDDEN FOREST MINI-GAME
+# AŞAMA 3B: BİNOMİAL ADLANDIRMA (ÖRNEK TEŞHİSİ)
 # ==========================================
-elif st.session_state.game_stage == "forest":
-  st.header("🌲 The Forbidden Forest")
+elif st.session_state.game_stage == "diagnosis":
+  st.header("🔍 İkili Adlandırma (Binomial Nomenclature) Teşhisi")
   st.write(
-      "You hear a rustling in the dark trees. Suddenly, a giant Acromantula"
-      " (spider) drops down blocking your path!"
+      "Masada bir bitki var. Tür adı *sempervirens* (örn: *Cupressus"
+      " sempervirens*)."
   )
+  st.info("Soru: Bu bitkinin mevsimsel dövüşü/özelliği nedir?")
 
-  spell = st.selectbox(
-      "Choose a spell to cast from your wand:",
+  property_choice = st.selectbox(
+      "Bitkinin en belirgin özelliği nedir?",
       [
-          "Select a spell...",
-          "Lumos (Bright Light)",
-          "Arania Exumai (Spider Repelling Spell)",
-          "Wingardium Leviosa (Floating Charm)",
+          "Seçiminizi yapın...",
+          "Her dem yeşil (yaprak dökmez)",
+          "Sadece kışın çiçek açar",
+          "Tek yıllık otsu bitki",
       ],
   )
 
-  if st.button("Cast Spell!"):
-    if "Arania Exumai" in spell:
+  if st.button("Teşhisi Tamamla"):
+    if "Her dem yeşil" in property_choice:
       st.success(
-          "✨ A blast of magic hits the spider! It scurries back into the"
-          " shadows. You find a rare Phoenix Feather on the ground! +30 House"
-          " Points."
+          "✨ Doğru! *Semper* (daima) + *virens* (yeşil) = Her dem yeşil"
+          " demektir. +30 Bilgi Puanı!"
       )
-      st.session_state.house_points += 30
-      st.session_state.inventory.append("Rare Phoenix Feather")
-    elif "Select a spell..." in spell:
-      st.warning("Quick! Pick a spell!")
+      st.session_state.knowledge_points += 30
+      st.session_state.inventory.append("Sempervirens Örneği")
+    elif "Seçiminizi" in property_choice:
+      st.warning("Lütfen bir özellik seçin!")
     else:
-      st.error(
-          "❌ That spell didn't work on the giant spider! It chases you back"
-          " to the castle gates. -15 House Points."
-      )
-      st.session_state.house_points -= 15
+      st.error("❌ Yanlış teşhis! Bitki yapraklarını dökmez. -15 Puan.")
+      st.session_state.knowledge_points -= 15
 
-  if st.button("🔙 Back to Common Room"):
+  if st.button("🔙 Ana Seraya Dön"):
     st.session_state.game_stage = "hub"
     st.rerun()
 
 # ==========================================
-# STAGE 3C: LIBRARY ARCHIVES MINI-GAME
+# AŞAMA 3C: MORFOLOJİ BİLMECESİ (YAPRAK VE ŞEKİL)
 # ==========================================
-elif st.session_state.game_stage == "library":
-  st.header("📚 The Restricted Section")
+elif st.session_state.game_stage == "expedition":
+  st.header("🌳 Morfoloji Bilmece İstasyonu")
   st.write(
-      "An old, glowing book floats on a pedestal, guarding a wizarding"
-      " riddle:"
-  )
-  st.info(
-      "*'I have no voice, but I speak; I have no body, but I come alive with"
-      " wind. What am I?'*"
+      "Eski bir botanik el yazmasında şu tanım yer alıyor: *'Mızrak şeklinde,"
+      " uç kısmı sivri yaprak yapısı.'*"
   )
 
-  riddle_answer = st.text_input("Your answer:")
+  term_input = st.text_input(
+      "Bu morfolojik Latince terimi girin (İpucu: l...):",
+      placeholder="Örn: lanceolatus",
+  )
 
-  if st.button("Submit Answer"):
-    if riddle_answer.strip().lower() in ["echo", "an echo"]:
+  if st.button("Gönder"):
+    if term_input.strip().lower() in ["lanceolatus", "lanceolate"]:
       st.success(
-          "📖 The book opens wide, revealing ancient spells! +20 House Points."
+          "📖 Mükemmel! *Lanceolatus* (mızrak biçimli) doğru cevap! +20 Bilgi"
+          " Puanı."
       )
-      st.session_state.house_points += 20
-      st.session_state.inventory.append("Ancient Spellbook")
+      st.session_state.knowledge_points += 20
+      st.session_state.inventory.append("Lanceolatus Kartı")
     else:
-      st.error("❌ The book snaps shut and floats away. Incorrect!")
-      st.session_state.house_points -= 10
+      st.error(
+          "❌ Yanlış terim! Doğru terim 'lanceolatus' olmalıydı. -10 Puan."
+      )
+      st.session_state.knowledge_points -= 10
 
-  if st.button("🔙 Back to Common Room"):
+  if st.button("🔙 Ana Seraya Dön"):
     st.session_state.game_stage = "hub"
     st.rerun()
