@@ -14,27 +14,24 @@ st.set_page_config(
 # SESSION STATE INITIALIZATION
 # ==========================================
 if "game_stage" not in st.session_state:
-  st.session_state.game_stage = "sorting"  # sorting, hub, quest, end
+  st.session_state.game_stage = "sorting"  # sorting, hub, potions, forest, library
   st.session_state.player_name = ""
   st.session_state.house = ""
   st.session_state.wand = ""
   st.session_state.house_points = 50
   st.session_state.inventory = []
-  st.session_state.current_quest = None
-  st.session_state.quest_message = ""
 
 # ==========================================
 # STAGE 1: THE SORTING CEREMONY & CHARACTER SETUP
 # ==========================================
 if st.session_state.game_stage == "sorting":
   st.title("🏰 Welcome to Hogwarts!")
-  st.image(
-      "https://images.unsplash.com/photo-1618944251213-752a5170d0c2?q=80&w=1000&auto=format&fit=crop",
-      use_container_width=True,
-  )
   st.markdown(
-      "The Great Hall is buzzing with excitement. The Sorting Hat sits upon"
-      " the stool, waiting for you..."
+      "### ⚡ 🚂 Yer a Wizard, and the Great Hall awaits your arrival!"
+  )
+  st.write(
+      "The ancient stone walls echo with whispers as students chatter. The"
+      " Sorting Hat sits upon the stool, waiting for you..."
   )
 
   with st.form("character_form"):
@@ -134,12 +131,13 @@ elif st.session_state.game_stage == "hub":
       st.session_state.game_stage = "library"
       st.rerun()
 
+  # Game over condition check
   if st.session_state.house_points <= 0:
     st.error(
         "Oh no! Your House Points reached 0. Headmaster Dumbledore is very"
         " disappointed."
     )
-    if st.button("Try Again"):
+    if st.button("Try Again 🔄"):
       st.session_state.house_points = 50
       st.rerun()
 
@@ -196,7 +194,12 @@ elif st.session_state.game_stage == "forest":
 
   spell = st.selectbox(
       "Choose a spell to cast from your wand:",
-      ["Select a spell...", "Lumos (Bright Light)", "Arania Exumai (Spider Repelling Spell)", "Wingardium Leviosa (Floating Charm)"],
+      [
+          "Select a spell...",
+          "Lumos (Bright Light)",
+          "Arania Exumai (Spider Repelling Spell)",
+          "Wingardium Leviosa (Floating Charm)",
+      ],
   )
 
   if st.button("Cast Spell!"):
